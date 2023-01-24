@@ -2,6 +2,7 @@ package python;
 
 import manager.InputManager;
 import setting.FlagSetting;
+import setting.GameSetting;
 import setting.LaunchSetting;
 
 /**
@@ -65,7 +66,8 @@ public class PyGame {
 		LaunchSetting.characterNames[1] = c2;
 		LaunchSetting.aiNames[0] = name1;
 		LaunchSetting.aiNames[1] = name2;
-		LaunchSetting.repeatNumber = num;
+		GameSetting.ROUND_MAX = num;
+		// LaunchSetting.repeatNumber = num;
 
 		if (LaunchSetting.repeatNumber > 1) {
 			FlagSetting.automationFlag = true;
