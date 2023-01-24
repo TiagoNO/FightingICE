@@ -91,7 +91,7 @@ public class InputManager<Data> {
 			this.deviceTypes[i] = DEVICE_TYPE_KEYBOARD;
 		}
 
-		this.endFrame = ThreadController.getInstance().getEndFrame();
+		// this.endFrame = ThreadController.getInstance().getEndFrame();
 	}
 
 	/**
@@ -135,6 +135,12 @@ public class InputManager<Data> {
 	 * 毎フレーム実行され，キーボード入力及びAIの入力情報を取得する．
 	 */
 	public void update() {
+		// try {
+		// 	Thread.sleep(1);
+		// } catch (InterruptedException e) {
+		// 	// TODO Auto-generated catch block
+		// 	e.printStackTrace();
+		// }
 		Key[] keys = new Key[this.deviceTypes.length];
 		for (int i = 0; i < this.deviceTypes.length; i++) {
 			switch (this.deviceTypes[i]) {
@@ -225,10 +231,11 @@ public class InputManager<Data> {
 	public void startAI(GameData gameData) throws Py4JException{
 		for (int i = 0; i < this.deviceTypes.length; i++) {
 			if (this.ais[i] != null) {
-				this.ais[i].initialize(ThreadController.getInstance().getAIsObject(i == 0), gameData, i == 0);
+				this.ais[i].initialize(gameData, i == 0);
 				this.ais[i].start();// start the thread
 			}
 		}
+		// ThreadController.getInstance().resetAllAIsObj();
 	}
 
 	/**
@@ -282,25 +289,17 @@ public class InputManager<Data> {
 				} else {
 					this.ais[i].setFrameData(new FrameData());
 				}
-				this.ais[i].setScreenData(new ScreenData(screenData));
-				this.ais[i].setAudioData(new AudioData(audioData));
-			}
-		}
-
-		synchronized (this.endFrame) {
-			try {
-				ThreadController.getInstance().resetAllAIsObj();
-				if (FlagSetting.fastModeFlag) {
-//					SoundManager.getInstance().pauseSound();
-					this.endFrame.wait();
-//					SoundManager.getInstance().resumeSound();
-				} else {
-
+				if(FlagSetting.enableWindow){
+					this.ais[i].setScreenData(new ScreenData(screenData));
+					this.ais[i].setAudioData(new AudioData(audioData));	
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
+
+
+		while(!ThreadController.getInstance().isBothWaiting());
+		ThreadController.getInstance().startProcess();
+		while(!ThreadController.getInstance().isEndFrame());
 	}
 
 	/**

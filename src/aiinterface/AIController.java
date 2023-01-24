@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import informationcontainer.RoundResult;
 import py4j.Py4JException;
+import setting.FlagSetting;
 import setting.GameSetting;
 import setting.LaunchSetting;
 import struct.*;
@@ -76,9 +77,9 @@ public class AIController extends Thread {
      *                     {@code true} if the character is P1, or {@code false} if P2.
      * @see GameData
      */
-    public void initialize(Object waitFrame, GameData gameData, boolean playerNumber) throws Py4JException {
+    public void initialize(GameData gameData, boolean playerNumber) throws Py4JException {
         this.playerNumber = playerNumber;
-        this.waitObj = waitFrame;
+        // this.waitObj = waitFrame;
         this.key = new Key();
         this.framesData = new LinkedList<FrameData>();
         this.clear();
@@ -98,13 +99,8 @@ public class AIController extends Thread {
     public void run() {
         Logger.getAnonymousLogger().log(Level.INFO, "Start to run");
         while (isFighting) {
-            synchronized (this.waitObj) {
-                try {
-                    this.waitObj.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            ThreadController.getInstance().notifyWaiting(this.playerNumber);
+            while(ThreadController.getInstance().isToWait(this.playerNumber));
 
             boolean isControl;
 
@@ -119,16 +115,22 @@ public class AIController extends Thread {
 //			this.ai.getInformation(!this.framesData.isEmpty() ? this.framesData.removeFirst() : new FrameData(), isControl, this.framesData.getLast());
 //          for delay
             FrameData aiFrameData = !this.framesData.isEmpty() ? new FrameData(this.framesData.removeFirst()) : new FrameData();
+
             if (LaunchSetting.noVisual[this.playerNumber ? 0 : 1]) {
                 aiFrameData.removeVisualData();
             }
             this.ai.getInformation(aiFrameData, isControl);
-            this.ai.getAudioData(this.audioData);
+            if(FlagSetting.enableWindow){
+                if(!FlagSetting.muteFlag){
+                    this.ai.getAudioData(this.audioData);
+                }
 
-            // screen raw data isn't provided to sound-only AI
-            if (!LaunchSetting.noVisual[this.playerNumber ? 0: 1]){
-                this.ai.getScreenData(this.screenData);
+                // screen raw data isn't provided to sound-only AI
+                if (!LaunchSetting.noVisual[this.playerNumber ? 0: 1]){
+                    this.ai.getScreenData(this.screenData);
+                }
             }
+
             this.ai.processing();
             setInput(this.ai.input());
             ThreadController.getInstance().notifyEndProcess(this.playerNumber);
@@ -219,10 +221,7 @@ public class AIController extends Thread {
      */
     public synchronized void gameEnd() {
         this.isFighting = false;
-        synchronized (this.waitObj) {
-            this.ai.close();
-            this.waitObj.notifyAll();
-        }
+        this.ai.close();
     }
 
     public synchronized void setAudioData(AudioData audioData) {

@@ -13,12 +13,14 @@ public class ThreadController {
 	/**
 	 * P1のAIの処理の開始のタイミングを管理するオブジェクト．
 	 */
-	private Object AI1;
+	boolean A1isWaiting;
 
 	/**
 	 * P2のAIの処理の開始のタイミングを管理するオブジェクト．
 	 */
-	private Object AI2;
+	boolean A2isWaiting;
+
+	boolean startFrame;
 
 	/**
 	 * P1のAIの処理が終わったかどうかを表すフラグ．<br>
@@ -33,19 +35,12 @@ public class ThreadController {
 	private boolean processedAI2;
 
 	/**
-	 * 各AIの処理を同時に始めるための同期用オブジェクト
-	 */
-	private Object endFrame;
-
-	/**
 	 * フィールド変数を初期化するクラスコンストラクタ
 	 */
 	private ThreadController() {
-		this.AI1 = new Object();
-		this.AI2 = new Object();
-		this.endFrame = new Object();
-
-		resetProcessedFlag();
+		this.startFrame = false;
+		this.resetProcessedFlag();
+		this.resetWaiting();
 	}
 
 	/**
@@ -57,16 +52,24 @@ public class ThreadController {
 		return threadController;
 	}
 
+	public synchronized void notifyWaiting(boolean playerNumber){
+		if(playerNumber){
+			this.A1isWaiting = true;
+		}
+		else{
+			this.A2isWaiting = true;
+		}
+	}
+
+	public synchronized boolean isBothWaiting(){
+		return (this.A1isWaiting && this.A2isWaiting);
+	}
+
 	/**
 	 * 各AIの処理を再開させる．
 	 */
 	public void resetAllAIsObj() {
-		synchronized (this.AI1) {
-			this.AI1.notifyAll();
-		}
-		synchronized (this.AI2) {
-			this.AI2.notifyAll();
-		}
+		this.resetWaiting();
 	}
 
 	/**
@@ -78,21 +81,21 @@ public class ThreadController {
 	 *
 	 * @return 引数に指定したキャラクターの同期用オブジェクト
 	 */
-	public Object getAIsObject(boolean playerNumber) {
-		if (playerNumber)
-			return this.AI1;
-		else
-			return this.AI2;
-	}
+	// public Object getAIsObject(boolean playerNumber) {
+	// 	if (playerNumber)
+	// 		return this.AI1;
+	// 	else
+	// 		return this.AI2;
+	// }
 
 	/**
 	 * 1フレーム分のゲームの処理が終わったことを示すオブジェクトを返す．
 	 *
 	 * @return 1フレーム分のゲームの処理が終わったことを示すオブジェクト．
 	 */
-	public Object getEndFrame() {
-		return this.endFrame;
-	}
+	// public Object getEndFrame() {
+	// 	return this.endFrame;
+	// }
 
 	/**
 	 * 各AIの処理が終わったかどうかを表すフラグを{@code false}にする．<br>
@@ -103,6 +106,11 @@ public class ThreadController {
 		this.processedAI2 = false;
 	}
 
+
+	private void resetWaiting(){
+		this.A1isWaiting = false;
+		this.A2isWaiting = false;
+	}
 	/**
 	 * 引数に指定したキャラクターの1フレーム分の処理が終わったことをセットする．<br>
 	 * セット後に，両方のAIが処理を終えているかどうかをチェックする．<br>
@@ -118,7 +126,21 @@ public class ThreadController {
 		} else {
 			this.processedAI2 = true;
 		}
-		this.checkEndFrame();
+	}
+
+	public synchronized boolean isToWait(boolean playerNumber){
+		if(playerNumber){
+			return this.A1isWaiting;
+		}
+		else{
+			return this.A2isWaiting;
+		}
+
+	}
+
+	public synchronized void startProcess(){
+		this.resetWaiting();
+		this.resetProcessedFlag();
 	}
 
 	/**
@@ -126,14 +148,8 @@ public class ThreadController {
 	 * 終えている場合は，次のフレームの処理を開始させる．<br>
 	 * Fastmodeのときのみ使用される．
 	 */
-	private void checkEndFrame() {
-		if (this.processedAI1 && this.processedAI2) {
-			synchronized (this.endFrame) {
-				this.endFrame.notifyAll();
-			}
-			this.processedAI1 = false;
-			this.processedAI2 = false;
-		}
+	public synchronized boolean isEndFrame() {
+		return (this.processedAI1 && this.processedAI2);
 	}
 
 }
