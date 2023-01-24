@@ -118,11 +118,18 @@ public class Play extends GameScene {
 		this.currentRound = 1;
 		this.roundStartFlag = true;
 		this.endFrame = -1;
-		this.sourceBackground = SoundManager.getInstance().createAudioSource();
 
 		this.frameData = new FrameData();
-		this.screenData = new ScreenData();
-		this.audioData = new AudioData();
+		if(FlagSetting.enableWindow)
+			this.screenData = new ScreenData();
+		else
+			this.screenData = null;
+
+		if(FlagSetting.enableWindow && !FlagSetting.muteFlag)
+			this.audioData = new AudioData();
+		else
+			this.audioData = null;
+
 		this.keyData = new KeyData();
 		this.roundResults = new ArrayList<RoundResult>();
 
@@ -152,7 +159,8 @@ public class Play extends GameScene {
 			this.setTransitionFlag(true);
 			this.setNextGameScene(lunch);
 		}
-		if (!FlagSetting.muteFlag) {
+		if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
+			this.sourceBackground = SoundManager.getInstance().createAudioSource();
 			SoundManager.getInstance().play2(sourceBackground, SoundManager.getInstance().getBackGroundMusicBuffer(), 350, 0, true);
 		}
 
@@ -182,7 +190,7 @@ public class Play extends GameScene {
 
 		} else {
 			Logger.getAnonymousLogger().log(Level.INFO, "Game over");
-			if (!FlagSetting.muteFlag) {
+			if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
 				// BGMを止める
 				SoundManager.getInstance().stop(sourceBackground);
 			}
@@ -192,26 +200,27 @@ public class Play extends GameScene {
 			this.setNextGameScene(result);
 		}
 
-		if (Keyboard.getKeyDown(GLFW_KEY_SPACE)) {
-			System.out.println("P1 x:" + this.frameData.getCharacter(true).getX() + "\n" + "P2 x:"
-					+ this.frameData.getCharacter(false).getX() + "\n" + "P1 Left:"
-					+ this.frameData.getCharacter(true).getLeft() + "\n" + "P1 Right:"
-					+ this.frameData.getCharacter(true).getRight() + "\n" + "P2 Left:"
-					+ this.frameData.getCharacter(false).getLeft() + "\n" + "P2 Right:"
-					+ this.frameData.getCharacter(false).getRight() + "\n");
-		}
-
-		if (Keyboard.getKeyDown(GLFW_KEY_ESCAPE)) {
-			if (!FlagSetting.muteFlag) {
-				// BGMを止める
-				SoundManager.getInstance().stop(sourceBackground);
+		if(FlagSetting.enableWindow){
+			if (Keyboard.getKeyDown(GLFW_KEY_SPACE)) {
+				System.out.println("P1 x:" + this.frameData.getCharacter(true).getX() + "\n" + "P2 x:"
+						+ this.frameData.getCharacter(false).getX() + "\n" + "P1 Left:"
+						+ this.frameData.getCharacter(true).getLeft() + "\n" + "P1 Right:"
+						+ this.frameData.getCharacter(true).getRight() + "\n" + "P2 Left:"
+						+ this.frameData.getCharacter(false).getLeft() + "\n" + "P2 Right:"
+						+ this.frameData.getCharacter(false).getRight() + "\n");
 			}
 
-			HomeMenu homeMenu = new HomeMenu();
-			this.setTransitionFlag(true);
-			this.setNextGameScene(homeMenu);
-		}
+			if (Keyboard.getKeyDown(GLFW_KEY_ESCAPE)) {
+				if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
+					// BGMを止める
+					SoundManager.getInstance().stop(sourceBackground);
+				}
 
+				HomeMenu homeMenu = new HomeMenu();
+				this.setTransitionFlag(true);
+				this.setNextGameScene(homeMenu);
+			}			
+		}
 	}
 
 	/**
@@ -225,7 +234,7 @@ public class Play extends GameScene {
 		this.keyData = new KeyData();
 
 		InputManager.getInstance().clear();
-		if (!FlagSetting.muteFlag) {
+		if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
 			SoundManager.getInstance().play2(sourceBackground,SoundManager.getInstance().getBackGroundMusicBuffer(),350,0,true);
 		}
 	}
@@ -235,7 +244,10 @@ public class Play extends GameScene {
 	 */
 	private void processingBreakTime() {
 		// ダミーフレームをAIにセット
-		InputManager.getInstance().setFrameData(new FrameData(), new ScreenData(), new AudioData());
+		if(FlagSetting.enableWindow)
+			InputManager.getInstance().setFrameData(new FrameData(), new ScreenData(), new AudioData());
+		else
+			InputManager.getInstance().setFrameData(new FrameData(), null, null);
 
 		if (FlagSetting.enableWindow) {
 			GraphicManager.getInstance().drawQuad(0, 0, GameSetting.STAGE_WIDTH, GameSetting.STAGE_HEIGHT, 0, 0, 0, 0);
@@ -289,27 +301,33 @@ public class Play extends GameScene {
 			DebugActionData.getInstance().countPlayerAction(this.fighting.getCharacters());
 		}
 
-		this.screenData = new ScreenData();
-		if (this.nowFrame == 0) {
-			this.audioData = new AudioData();
+		if (FlagSetting.enableWindow) {
+			this.screenData = new ScreenData();
 		}
-		else {
-            this.audioData = new AudioData(SoundManager.getInstance().getVirtualRenderer().sampleAudio());
-        }
+		
+		if (FlagSetting.enableWindow && !FlagSetting.muteFlag){
+			if (this.nowFrame == 0) {
+				this.audioData = new AudioData();
+			}
+			else {
+				this.audioData = new AudioData(SoundManager.getInstance().getVirtualRenderer().sampleAudio());
+			}	
+		}
 		// AIにFrameDataをセット
 		InputManager.getInstance().setFrameData(this.frameData, this.screenData, this.audioData);
-
+		
 		// 体力が0orタイムオーバーならラウンド終了処理
 		if (isBeaten() || isTimeOver()) {
 			processingRoundEnd();
 		}
+		// System.out.println("Frame: " + this.nowFrame);
 	}
 
 	/**
 	 * ラウンド終了時の処理を行う.
 	 */
 	private void processingRoundEnd() {
-		if (!FlagSetting.muteFlag){
+		if (FlagSetting.enableWindow && !FlagSetting.muteFlag){
 			ArrayList<AudioSource> audioSources = SoundManager.getInstance().getAudioSources();
 			for(AudioSource audioSource: audioSources)
 				SoundManager.getInstance().stop(audioSource);
@@ -395,7 +413,8 @@ public class Play extends GameScene {
 	public void close() {
 		// close fight
 		this.fighting.close();
-		this.sourceBackground.close();
+		if(FlagSetting.enableWindow && !FlagSetting.muteFlag)
+			this.sourceBackground.close();
 
 		this.fighting = null;
 		this.frameData = null;

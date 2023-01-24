@@ -33,6 +33,7 @@ import image.CharacterActionImage;
 import image.Image;
 import manager.GraphicManager;
 import manager.SoundManager;
+import setting.FlagSetting;
 import setting.GameSetting;
 import setting.LaunchSetting;
 import setting.ResourceSetting;
@@ -79,83 +80,83 @@ public class ResourceLoader {
 		String graphicPath = "./data/graphics/";
 		String characterGraphicPath = "./data/characters/";
 
-		// 波動拳読み込み
-		if (!isLoaded("hadouken")) {
-			loadImages(GraphicManager.getInstance().getProjectileImageContainer(),
-					graphicPath + ResourceSetting.PROJECTILE_DIRECTORY);
+		if(FlagSetting.enableWindow){
+			// 波動拳読み込み
+			if (!isLoaded("hadouken")) {
+				loadImages(GraphicManager.getInstance().getProjectileImageContainer(),
+						graphicPath + ResourceSetting.PROJECTILE_DIRECTORY);
 
-			addLoadedResource("hadouken");
-			Logger.getAnonymousLogger().log(Level.INFO, "Hadouken images have been loaded.");
+				addLoadedResource("hadouken");
+				Logger.getAnonymousLogger().log(Level.INFO, "Hadouken images have been loaded.");
+			}
+
+			// 必殺技読み込み
+			if (!isLoaded("super")) {
+				loadImages(GraphicManager.getInstance().getUltimateAttackImageContainer(),
+						graphicPath + ResourceSetting.SUPER_DIRECTORY);
+
+				addLoadedResource("super");
+				Logger.getAnonymousLogger().log(Level.INFO, "Ultimate attack images have been loaded.");
+			}
+
+			// 0~9の文字カウンタ読み込み
+			if (!isLoaded("hitCounter")) {
+				loadImages(GraphicManager.getInstance().getCounterTextImageContainer(),
+						graphicPath + ResourceSetting.COUNTER_DIRECTORY);
+
+				addLoadedResource("hitCounter");
+				Logger.getAnonymousLogger().log(Level.INFO, "Hit counter text images have been loaded.");
+			}
+
+			// "Hit"文字読み込み
+			if (!isLoaded("hitText")) {
+				loadImages(GraphicManager.getInstance().getHitTextImageContainer(),
+						graphicPath + ResourceSetting.HIT_TEXT_DIRECTORY);
+
+				addLoadedResource("hitText");
+				Logger.getAnonymousLogger().log(Level.INFO, "Hit text image has been loaded.");
+			}
+
+			// ヒットエフェクト読み込み
+			if (!isLoaded("hitEffect")) {
+				loadHitEffectImage(graphicPath + ResourceSetting.HIT_DIRECTORY);
+
+				addLoadedResource("hitEffect");
+				Logger.getAnonymousLogger().log(Level.INFO, "Hit effect images have been loaded.");
+			}
+
+			// 背景画像読み込み
+			if (!isLoaded("background")) {
+				loadBackgroundImage(GraphicManager.getInstance().getBackgroundImage(),
+						graphicPath + ResourceSetting.BACKGROUND_DIRECTORY);
+
+				addLoadedResource("background");
+				Logger.getAnonymousLogger().log(Level.INFO, "Background image has been loaded.");
+			}
+
+			// アッパー画像読み込み
+			loadUpperImages(graphicPath + ResourceSetting.UPPER_DIRECTORY);
+			Logger.getAnonymousLogger().log(Level.INFO, "Upper attack images have been loaded.");
+
+			// キャラクター画像読み込み
+			loadCharacterImages(characterGraphicPath);
+			Logger.getAnonymousLogger().log(Level.INFO, "Character images have been loaded.");
+
+			// サウンドエフェクト読み込み
+			if (!isLoaded("soundEffect")) {
+				loadSoundEffect();
+
+				addLoadedResource("soundEffect");
+				Logger.getAnonymousLogger().log(Level.INFO, "Sound effects have been loaded.");
+			}
+			// BGM読み込み
+			if (!isLoaded("BGM")) {
+				loadBackGroundMusic();
+
+				addLoadedResource("BGM");
+				Logger.getAnonymousLogger().log(Level.INFO, "BGM has been loaded.");
+			}
 		}
-
-		// 必殺技読み込み
-		if (!isLoaded("super")) {
-			loadImages(GraphicManager.getInstance().getUltimateAttackImageContainer(),
-					graphicPath + ResourceSetting.SUPER_DIRECTORY);
-
-			addLoadedResource("super");
-			Logger.getAnonymousLogger().log(Level.INFO, "Ultimate attack images have been loaded.");
-		}
-
-		// 0~9の文字カウンタ読み込み
-		if (!isLoaded("hitCounter")) {
-			loadImages(GraphicManager.getInstance().getCounterTextImageContainer(),
-					graphicPath + ResourceSetting.COUNTER_DIRECTORY);
-
-			addLoadedResource("hitCounter");
-			Logger.getAnonymousLogger().log(Level.INFO, "Hit counter text images have been loaded.");
-		}
-
-		// "Hit"文字読み込み
-		if (!isLoaded("hitText")) {
-			loadImages(GraphicManager.getInstance().getHitTextImageContainer(),
-					graphicPath + ResourceSetting.HIT_TEXT_DIRECTORY);
-
-			addLoadedResource("hitText");
-			Logger.getAnonymousLogger().log(Level.INFO, "Hit text image has been loaded.");
-		}
-
-		// ヒットエフェクト読み込み
-		if (!isLoaded("hitEffect")) {
-			loadHitEffectImage(graphicPath + ResourceSetting.HIT_DIRECTORY);
-
-			addLoadedResource("hitEffect");
-			Logger.getAnonymousLogger().log(Level.INFO, "Hit effect images have been loaded.");
-		}
-
-		// 背景画像読み込み
-		if (!isLoaded("background")) {
-			loadBackgroundImage(GraphicManager.getInstance().getBackgroundImage(),
-					graphicPath + ResourceSetting.BACKGROUND_DIRECTORY);
-
-			addLoadedResource("background");
-			Logger.getAnonymousLogger().log(Level.INFO, "Background image has been loaded.");
-		}
-
-		// アッパー画像読み込み
-		loadUpperImages(graphicPath + ResourceSetting.UPPER_DIRECTORY);
-		Logger.getAnonymousLogger().log(Level.INFO, "Upper attack images have been loaded.");
-
-		// キャラクター画像読み込み
-		loadCharacterImages(characterGraphicPath);
-		Logger.getAnonymousLogger().log(Level.INFO, "Character images have been loaded.");
-
-		// サウンドエフェクト読み込み
-		if (!isLoaded("soundEffect")) {
-			loadSoundEffect();
-
-			addLoadedResource("soundEffect");
-			Logger.getAnonymousLogger().log(Level.INFO, "Sound effects have been loaded.");
-		}
-
-		// BGM読み込み
-		if (!isLoaded("BGM")) {
-			loadBackGroundMusic();
-
-			addLoadedResource("BGM");
-			Logger.getAnonymousLogger().log(Level.INFO, "BGM has been loaded.");
-		}
-
 	}
 
 	/**

@@ -69,62 +69,63 @@ public class DisplayManager {
 		if (!glfwInit()) {
 			throw new IllegalStateException("Unable to initialize GLFW");
 		}
-
-		// GLFWの設定
-		glfwDefaultWindowHints();
-		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		System.setProperty("java.awt.headless", "true");
-
-		// windowの作成
-		short width = GameSetting.STAGE_WIDTH;
-		short height = GameSetting.STAGE_HEIGHT;
-		this.window = glfwCreateWindow(width, height, "FightingICE", NULL, NULL);
-		if (this.window == NULL) {
-			throw new RuntimeException("Failed to create the GLFW window");
-		}
-
-		// Setup a key callback. It will be called every time a key is pressed,
-		// repeated or released.
-		glfwSetKeyCallback(this.window, InputManager.getInstance().getKeyboard());
-
-		// Gets the thread stack and push a new frame
-		try (MemoryStack stack = stackPush()) {
-			IntBuffer pWidth = stack.mallocInt(1); // int*
-			IntBuffer pHeight = stack.mallocInt(1); // int*
-
-			// Gets the window size passed to glfwCreateWindow
-			glfwGetWindowSize(this.window, pWidth, pHeight);
-
-			// Gets the resolution of the primary monitor
-			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-			// Center the window
-			glfwSetWindowPos(this.window, (vidmode.width() - pWidth.get(0)) / 2,
-					(vidmode.height() - pHeight.get(0)) / 2);
-		} // the stack frame is popped automatically
-
-		// Makes the OpenGL context current
-		glfwMakeContextCurrent(this.window);
-
-		int sync;
-		if (!FlagSetting.enableWindow || FlagSetting.fastModeFlag) {
-			sync = 0;
-		} else {
-			sync = 1;
-		}
-
-		// Enable v-sync
-		glfwSwapInterval(sync);
-
-
 		if (FlagSetting.enableWindow) {
+			// GLFWの設定
+			glfwDefaultWindowHints();
+			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+			System.setProperty("java.awt.headless", "true");
+
+			// windowの作成
+			short width = GameSetting.STAGE_WIDTH;
+			short height = GameSetting.STAGE_HEIGHT;
+			this.window = glfwCreateWindow(width, height, "FightingICE", NULL, NULL);
+			if (this.window == NULL) {
+				throw new RuntimeException("Failed to create the GLFW window");
+			}
+
+			// Setup a key callback. It will be called every time a key is pressed,
+			// repeated or released.
+			glfwSetKeyCallback(this.window, InputManager.getInstance().getKeyboard());
+
+			// Gets the thread stack and push a new frame
+			try (MemoryStack stack = stackPush()) {
+				IntBuffer pWidth = stack.mallocInt(1); // int*
+				IntBuffer pHeight = stack.mallocInt(1); // int*
+
+				// Gets the window size passed to glfwCreateWindow
+				glfwGetWindowSize(this.window, pWidth, pHeight);
+
+				// Gets the resolution of the primary monitor
+				GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+				// Center the window
+				glfwSetWindowPos(this.window, (vidmode.width() - pWidth.get(0)) / 2,
+						(vidmode.height() - pHeight.get(0)) / 2);
+			} // the stack frame is popped automatically
+
+			// Makes the OpenGL context current
+			glfwMakeContextCurrent(this.window);
+
+			int sync;
+			if (!FlagSetting.enableWindow || FlagSetting.fastModeFlag) {
+				sync = 0;
+			} else {
+				sync = 1;
+			}
+
+			// Enable v-sync
+			glfwSwapInterval(sync);
+
+
+
 			// Makes the window visible
 			glfwShowWindow(this.window);
 			Logger.getAnonymousLogger().log(Level.INFO, "Create Window " + width + "x" + height);
 		} else {
 			// Makes the window invisible
-			glfwHideWindow(this.window);
+			// glfwHideWindow(this.window);
+			// Logger.getAnonymousLogger().setLevel(Level.OFF);
 			Logger.getAnonymousLogger().log(Level.INFO, "Disable window mode");
 		}
 	}
@@ -136,26 +137,37 @@ public class DisplayManager {
 	 *            GameManagerクラスのインスタンス
 	 */
 	private void gameLoop(GameManager gm) {
-		glfwSetTime(0.0);
+		if (FlagSetting.enableWindow) {
+			glfwSetTime(0.0);
 
-		// This line is critical for LWJGL's interoperation with GLFW's
-		// OpenGL context, or any context that is managed externally.
-		// LWJGL detects the context that is current in the current thread,
-		// creates the GLCapabilities instance and makes the OpenGL
-		// bindings available for use.
-		GL.createCapabilities();
+			// This line is critical for LWJGL's interoperation with GLFW's
+			// OpenGL context, or any context that is managed externally.
+			// LWJGL detects the context that is current in the current thread,
+			// creates the GLCapabilities instance and makes the OpenGL
+			// bindings available for use.
+			GL.createCapabilities();
 
-		// Sets the clear color
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		initGL();
+			// Sets the clear color
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			initGL();
+		}
 
 		// ゲームマネージャ初期化
 		gm.initialize();
 
 		long lastNanos = System.nanoTime();
+		float mean = 0;
+		int count = 0;
 		// Runs the rendering loop until the user has attempted to close the
 		// window.
-		while (!glfwWindowShouldClose(this.window)) {
+		while (true) {
+			if(FlagSetting.enableWindow){
+				if(glfwWindowShouldClose(this.window)){
+					break;
+				}
+			}
+
+			lastNanos = System.nanoTime();
 			// ゲーム終了の場合,リソースを解放してループを抜ける
 			if (gm.isExit()) {
 				gm.close();
@@ -165,18 +177,26 @@ public class DisplayManager {
 			// ゲーム状態の更新
 			gm.update();
 
-		   	if(!FlagSetting.fastModeFlag){
-		   		syncFrameRate(60, lastNanos);
-		   		lastNanos = System.nanoTime();
-		   	}
-			// バックバッファに描画する
-			GraphicManager.getInstance().render();
+		   	//  if(!FlagSetting.fastModeFlag){
+		   	//  	syncFrameRate(10, lastNanos);
+		   	//  }
 
-			// バックバッファとフレームバッファを入れ替える
-			glfwSwapBuffers(this.window);
+			// バックバッファに描画する
+			if(FlagSetting.enableWindow){
+				GraphicManager.getInstance().render();
+
+				// バックバッファとフレームバッファを入れ替える
+				glfwSwapBuffers(this.window);
+				glfwPollEvents();
+			}
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
-			glfwPollEvents();
+			mean += (System.nanoTime() - lastNanos) * 10e-9;
+			count += 1;
+			System.out.println((System.nanoTime() - lastNanos) * 10e-9);
+			System.out.println(mean/count);
+			System.out.println(count/mean);
+			System.out.println("=========================================");
 		}
 	}
 
@@ -184,16 +204,21 @@ public class DisplayManager {
 	 * ゲームの終了処理を行い，ウィンドウを閉じる.
 	 */
 	private void close() {
-		GraphicManager.getInstance().close();
-		SoundManager.getInstance().close();
+		if(FlagSetting.enableWindow){
+			GraphicManager.getInstance().close();
 
-		// Free the window callbacks and destroy the window
-		glfwFreeCallbacks(this.window);
-		glfwDestroyWindow(this.window);
+			if(FlagSetting.enableWindow && !FlagSetting.muteFlag){
+				SoundManager.getInstance().close();
+			}
 
-		// Terminate GLFW and free the error callback
-		glfwTerminate();
-		glfwSetErrorCallback(null).free();
+			// Free the window callbacks and destroy the window
+			glfwFreeCallbacks(this.window);
+			glfwDestroyWindow(this.window);
+
+			// Terminate GLFW and free the error callback
+			glfwTerminate();
+			glfwSetErrorCallback(null).free();
+		}
 		Logger.getAnonymousLogger().log(Level.INFO, "Close FightingICE");
 		System.exit(0);
 	}
@@ -213,14 +238,14 @@ public class DisplayManager {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-    private void syncFrameRate(float fps, long lastNanos) {
+    // private void syncFrameRate(float fps, long lastNanos) {
 
-    	long targetNanos = lastNanos + (long) (1_000_000_000.0f / fps) - 1_000_000L;  // subtract 1 ms to skip the last sleep call
-    	try {
-    		while (System.nanoTime() < targetNanos) {
-    			Thread.sleep(1);
-    		}
-    	}
-    	catch (InterruptedException ignore) {}
-    }
+    // 	long targetNanos = lastNanos + (long) (1_000_000_000.0f / fps) - 1_000_000L;  // subtract 1 ms to skip the last sleep call
+    // 	try {
+    // 		while (System.nanoTime() < targetNanos) {
+    // 			Thread.sleep(1);
+    // 		}
+    // 	}
+    // 	catch (InterruptedException ignore) {}
+    // }
 }

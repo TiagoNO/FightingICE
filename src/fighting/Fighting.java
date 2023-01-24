@@ -196,12 +196,16 @@ public class Fighting {
 					// 4Hit以上であれば,エフェクトは4ヒット目のもの固定
 					comboState = Math.min(comboState, 3);
 
-					Image[] effect = GraphicManager.getInstance().getHitEffectImageContaier()[comboState];
+					Image[] effect = null;
+					if(FlagSetting.enableWindow)
+						effect = GraphicManager.getInstance().getHitEffectImageContaier()[comboState];
 					this.hitEffects.get(i).add(new HitEffect(this.playerCharacters[i].getAttack(), effect, isHit[i]));
 
 					// アッパーの処理
 					if (playerCharacters[i].getAction() == Action.STAND_F_D_DFB) {
-						Image[] upper = GraphicManager.getInstance().getUpperImageContainer()[i];
+						Image[] upper = null;
+						if(FlagSetting.enableWindow)
+							upper = GraphicManager.getInstance().getUpperImageContainer()[i];
 						Motion motion = this.playerCharacters[i].getMotionList().get(Action.STAND_F_D_DFB.ordinal());
 
 						if (this.playerCharacters[i].startActive(motion)) {

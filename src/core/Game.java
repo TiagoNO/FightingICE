@@ -39,6 +39,17 @@ public class Game extends GameManager {
      * @param options 起動時に入力した全ての引数を格納した配列
      */
     public void setOptions(String[] options) {
+    //   LaunchSetting.aiNames[0] = "MctsAi";
+    //   LaunchSetting.deviceTypes[0] = InputManager.DEVICE_TYPE_AI;
+    //   LaunchSetting.aiNames[1] = "MctsAi";
+    //   LaunchSetting.deviceTypes[1] = InputManager.DEVICE_TYPE_AI;
+
+    //   FlagSetting.muteFlag = true;
+    //   FlagSetting.enableWindow = false;
+    //   FlagSetting.automationFlag = true;
+    //   FlagSetting.fastModeFlag = true;
+
+
         // Reads the configurations here
         for (int i = 0; i < options.length; ++i) {
             switch (options[i]) {
@@ -148,8 +159,10 @@ public class Game extends GameManager {
     @Override
     public void initialize() {
         // 使用フォントの初期化
-        Font awtFont = new Font("Times New Roman", Font.BOLD, 24);
-        GraphicManager.getInstance().setLetterFont(new LetterImage(awtFont, true));
+        if(FlagSetting.enableWindow){
+            Font awtFont = new Font("Times New Roman", Font.BOLD, 24);
+            GraphicManager.getInstance().setLetterFont(new LetterImage(awtFont, true));    
+        }
 
         createLogDirectories();
 
@@ -165,19 +178,17 @@ public class Game extends GameManager {
             }
 
             Launcher launcher = new Launcher(GameSceneName.PLAY);
-            this.startGame(launcher);
-
+            this.startGame(launcher);        
             // -Python側で起動するときは, Pythonシーンからゲームを開始する
-        } else if (FlagSetting.py4j) {
-            System.out.println("Python");
-            Python python = new Python();
-            this.startGame(python);
-
-            // 上記以外の場合, メニュー画面からゲームを開始する
-        } else {
-            HomeMenu homeMenu = new HomeMenu();
-            this.startGame(homeMenu);
-        }
+         } else if (FlagSetting.py4j) {
+              System.out.println("Python");
+              Python python = new Python();
+              this.startGame(python);
+         //     // 上記以外の場合, メニュー画面からゲームを開始する
+          } else {
+              HomeMenu homeMenu = new HomeMenu();
+              this.startGame(homeMenu);
+          }
 
     }
 
