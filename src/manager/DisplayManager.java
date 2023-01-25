@@ -61,15 +61,16 @@ public class DisplayManager {
 	 * ウィンドウを作成する際の初期化及びOpenGLの初期化処理を行う．
 	 */
 	private void initialize() {
-		// Setup an error callback. The default implementation
-		// will print the error message in System.err.
-		GLFWErrorCallback.createPrint(System.err).set();
-
-		// Initialize GLFW. Most GLFW functions will not work before doing this.
-		if (!glfwInit()) {
-			throw new IllegalStateException("Unable to initialize GLFW");
-		}
 		if (FlagSetting.enableWindow) {
+			// Setup an error callback. The default implementation
+			// will print the error message in System.err.
+			GLFWErrorCallback.createPrint(System.err).set();
+
+			// Initialize GLFW. Most GLFW functions will not work before doing this.
+			if (!glfwInit()) {
+				throw new IllegalStateException("Unable to initialize GLFW");
+			}
+
 			// GLFWの設定
 			glfwDefaultWindowHints();
 			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
@@ -155,9 +156,9 @@ public class DisplayManager {
 		// ゲームマネージャ初期化
 		gm.initialize();
 
-		long lastNanos = System.nanoTime();
-		float mean = 0;
-		int count = 0;
+		// long lastNanos = System.nanoTime();
+		// float mean = 0;
+		// int count = 0;
 		// Runs the rendering loop until the user has attempted to close the
 		// window.
 		while (true) {
@@ -167,7 +168,7 @@ public class DisplayManager {
 				}
 			}
 
-			lastNanos = System.nanoTime();
+			// lastNanos = System.nanoTime();
 			// ゲーム終了の場合,リソースを解放してループを抜ける
 			if (gm.isExit()) {
 				gm.close();
@@ -191,12 +192,12 @@ public class DisplayManager {
 			}
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
-			mean += (System.nanoTime() - lastNanos) * 10e-9;
-			count += 1;
-			System.out.println((System.nanoTime() - lastNanos) * 10e-9);
-			System.out.println(mean/count);
-			System.out.println(count/mean);
-			System.out.println("=========================================");
+			// mean += (System.nanoTime() - lastNanos) * 10e-9;
+			// count += 1;
+			// System.out.println((System.nanoTime() - lastNanos) * 10e-9);
+			// System.out.println(mean/count);
+			// System.out.println(count/mean);
+			// System.out.println("=========================================");
 		}
 	}
 
