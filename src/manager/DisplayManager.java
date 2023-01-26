@@ -61,15 +61,16 @@ public class DisplayManager {
 	 * ウィンドウを作成する際の初期化及びOpenGLの初期化処理を行う．
 	 */
 	private void initialize() {
-		// Setup an error callback. The default implementation
-		// will print the error message in System.err.
-		GLFWErrorCallback.createPrint(System.err).set();
-
-		// Initialize GLFW. Most GLFW functions will not work before doing this.
-		if (!glfwInit()) {
-			throw new IllegalStateException("Unable to initialize GLFW");
-		}
 		if (FlagSetting.enableWindow) {
+			// Setup an error callback. The default implementation
+			// will print the error message in System.err.
+			GLFWErrorCallback.createPrint(System.err).set();
+
+			// Initialize GLFW. Most GLFW functions will not work before doing this.
+			if (!glfwInit()) {
+				throw new IllegalStateException("Unable to initialize GLFW");
+			}
+
 			// GLFWの設定
 			glfwDefaultWindowHints();
 			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
