@@ -67,11 +67,6 @@ public class PyGame {
 		LaunchSetting.aiNames[0] = name1;
 		LaunchSetting.aiNames[1] = name2;
 		GameSetting.ROUND_MAX = num;
-		// LaunchSetting.repeatNumber = num;
-
-		if (LaunchSetting.repeatNumber > 1) {
-			FlagSetting.automationFlag = true;
-		}
 	}
 
 	/**
