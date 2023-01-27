@@ -169,25 +169,26 @@ public class InputManager<Data> {
 	 */
 	private Key getKeyFromKeyboard(boolean playerNumber) {
 		Key key = new Key();
-
-		if (playerNumber) {
-			key.A = keyboard.getKeyDown(GLFW_KEY_Z);
-			key.B = keyboard.getKeyDown(GLFW_KEY_X);
-			key.C = keyboard.getKeyDown(GLFW_KEY_C);
-			key.U = keyboard.getKeyDown(GLFW_KEY_UP);
-			key.D = keyboard.getKeyDown(GLFW_KEY_DOWN);
-			key.R = keyboard.getKeyDown(GLFW_KEY_RIGHT);
-			key.L = keyboard.getKeyDown(GLFW_KEY_LEFT);
-		} else {
-			key.A = keyboard.getKeyDown(GLFW_KEY_T);
-			key.B = keyboard.getKeyDown(GLFW_KEY_Y);
-			key.C = keyboard.getKeyDown(GLFW_KEY_U);
-			key.U = keyboard.getKeyDown(GLFW_KEY_I);
-			key.D = keyboard.getKeyDown(GLFW_KEY_K);
-			key.R = keyboard.getKeyDown(GLFW_KEY_L);
-			key.L = keyboard.getKeyDown(GLFW_KEY_J);
+		if(FlagSetting.enableWindow){
+			if (playerNumber) {
+				key.A = keyboard.getKeyDown(GLFW_KEY_Z);
+				key.B = keyboard.getKeyDown(GLFW_KEY_X);
+				key.C = keyboard.getKeyDown(GLFW_KEY_C);
+				key.U = keyboard.getKeyDown(GLFW_KEY_UP);
+				key.D = keyboard.getKeyDown(GLFW_KEY_DOWN);
+				key.R = keyboard.getKeyDown(GLFW_KEY_RIGHT);
+				key.L = keyboard.getKeyDown(GLFW_KEY_LEFT);
+			} else {
+				key.A = keyboard.getKeyDown(GLFW_KEY_T);
+				key.B = keyboard.getKeyDown(GLFW_KEY_Y);
+				key.C = keyboard.getKeyDown(GLFW_KEY_U);
+				key.U = keyboard.getKeyDown(GLFW_KEY_I);
+				key.D = keyboard.getKeyDown(GLFW_KEY_K);
+				key.R = keyboard.getKeyDown(GLFW_KEY_L);
+				key.L = keyboard.getKeyDown(GLFW_KEY_J);
+			}	
+			ThreadController.getInstance().notifyWaiting(playerNumber);
 		}
-
 		return key;
 	}
 
@@ -299,6 +300,10 @@ public class InputManager<Data> {
 
 		while(!ThreadController.getInstance().isBothWaiting());
 		ThreadController.getInstance().startProcess();
+		for (int i = 0; i < this.ais.length; i++) {
+			if(this.deviceTypes[i] == DEVICE_TYPE_KEYBOARD)
+				ThreadController.getInstance().notifyEndProcess(i==0);
+		}
 		while(!ThreadController.getInstance().isEndFrame());
 	}
 
