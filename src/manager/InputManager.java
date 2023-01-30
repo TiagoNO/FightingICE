@@ -88,7 +88,7 @@ public class InputManager<Data> {
 		this.predifinedAIs = new HashMap<String, AIInterface>();
 
 		for (int i = 0; i < this.deviceTypes.length; i++) {
-			this.deviceTypes[i] = DEVICE_TYPE_KEYBOARD;
+			this.deviceTypes[i] = LaunchSetting.deviceTypes[i];
 		}
 
 		// this.endFrame = ThreadController.getInstance().getEndFrame();
