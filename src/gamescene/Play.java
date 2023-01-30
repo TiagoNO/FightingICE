@@ -102,6 +102,7 @@ public class Play extends GameScene {
 		this.isGameEndFlag = false;
 		this.isTransitionFlag = false;
 		this.nextGameScene = null;
+		this.dos = null;
 		//////////////////////////////////////
 
 	}
@@ -135,7 +136,7 @@ public class Play extends GameScene {
 
 		this.timeInfo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd-HH.mm.ss", Locale.ENGLISH));
 
-		if (!FlagSetting.trainingModeFlag) {
+		if (!FlagSetting.trainingModeFlag && !FlagSetting.py4j) {
 			openReplayFile();
 		}
 
@@ -282,7 +283,7 @@ public class Play extends GameScene {
 		this.frameData = this.fighting.createFrameData(this.nowFrame, this.currentRound);
 
 		// リプレイログ吐き出し
-		if (!FlagSetting.trainingModeFlag) {
+		if (!FlagSetting.trainingModeFlag && !FlagSetting.py4j) {
 			LogWriter.getInstance().outputLog(this.dos, this.keyData, this.fighting.getCharacters());
 		}
 
