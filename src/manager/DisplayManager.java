@@ -157,8 +157,7 @@ public class DisplayManager {
 		gm.initialize();
 
 		// long lastNanos = System.nanoTime();
-		// float mean = 0;
-		// int count = 0;
+		// double mean = 0;
 		// Runs the rendering loop until the user has attempted to close the
 		// window.
 		while (true) {
@@ -190,14 +189,6 @@ public class DisplayManager {
 				glfwSwapBuffers(this.window);
 				glfwPollEvents();
 			}
-			// Poll for window events. The key callback above will only be
-			// invoked during this call.
-			// mean += (System.nanoTime() - lastNanos) * 10e-9;
-			// count += 1;
-			// System.out.println((System.nanoTime() - lastNanos) * 10e-9);
-			// System.out.println(mean/count);
-			// System.out.println(count/mean);
-			// System.out.println("=========================================");
 		}
 	}
 

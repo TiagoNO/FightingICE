@@ -7,6 +7,8 @@ import python.PyGatewayServer;
 import python.StateInhibitor;
 import setting.FlagSetting;
 import setting.LaunchSetting;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Python側で起動したゲームの実行処理を行うクラス．
@@ -60,6 +62,7 @@ public class Python extends GameScene {
 		if(FlagSetting.enableWindow){
 			GraphicManager.getInstance().drawString("Waiting python to launch a game", 300, 200);
 		}
+		Logger.getAnonymousLogger().log(Level.INFO, "Waiting python to lauch a game");
 		if (this.needRun) {
 			this.needRun = false;
 
