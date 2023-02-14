@@ -56,7 +56,7 @@ public class Python extends GameScene {
 	@Override
 	public void update() {
 		if (this.stateInhibitor != null) {
-			this.stateInhibitor.replayUpdate();
+			// this.stateInhibitor.replayUpdate();
 			return;
 		}
 		if(FlagSetting.enableWindow){

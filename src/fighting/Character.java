@@ -326,6 +326,7 @@ public class Character {
             this.graphicAdjustX = Integer.valueOf(center[0]);
             this.graphicAdjustInitialX[0] = Integer.valueOf(center[2]);
             this.graphicAdjustInitialX[1] = Integer.valueOf(center[3]);
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

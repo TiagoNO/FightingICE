@@ -74,9 +74,9 @@ public class Result extends GameScene {
 		InputManager.getInstance().setSceneName(GameSceneName.RESULT);
 
 		// pointファイルの書き出し
-		if(!FlagSetting.py4j){
-			LogWriter.getInstance().outputResult(this.roundResults, LogWriter.CSV, this.timeInfo);
-		}
+		// if(!FlagSetting.py4j){
+		LogWriter.getInstance().outputResult(this.roundResults, LogWriter.CSV, this.timeInfo);
+		// }
 	}
 
 	@Override

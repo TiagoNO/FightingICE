@@ -245,15 +245,13 @@ public class Play extends GameScene {
 	 */
 	private void processingBreakTime() {
 		// ダミーフレームをAIにセット
-		if(FlagSetting.enableWindow)
+		if(FlagSetting.enableWindow){
 			InputManager.getInstance().setFrameData(new FrameData(), new ScreenData(), new AudioData());
-		else
-			InputManager.getInstance().setFrameData(new FrameData(), null, null);
-
-		if (FlagSetting.enableWindow) {
 			GraphicManager.getInstance().drawQuad(0, 0, GameSetting.STAGE_WIDTH, GameSetting.STAGE_HEIGHT, 0, 0, 0, 0);
 			GraphicManager.getInstance().drawString("Waiting for Round Start", 350, 200);
 		}
+		else
+			InputManager.getInstance().setFrameData(new FrameData(), null, null);
 		this.fighting.initRound();
 	}
 
