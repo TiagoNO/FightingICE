@@ -58,9 +58,12 @@ public class Game extends GameManager {
                     FlagSetting.allCombinationFlag = true;
                     LaunchSetting.deviceTypes = new char[]{1, 1};
                     break;
-                case "-n":
+                case "--n":
+                    GameSetting.ROUND_MAX = Integer.parseInt(options[++i]);
+                    FlagSetting.automationFlag = true;
+                    break;
                 case "--number":
-                    LaunchSetting.repeatNumber = Integer.parseInt(options[++i]);
+                    GameSetting.ROUND_MAX = Integer.parseInt(options[++i]);
                     FlagSetting.automationFlag = true;
                     break;
                 case "--a1":
@@ -167,7 +170,7 @@ public class Game extends GameManager {
         createLogDirectories();
 
         // -nまたは-aが指定されたときは, メニュー画面に行かず直接ゲームをLaunchする
-        if ((FlagSetting.automationFlag || FlagSetting.allCombinationFlag) && !FlagSetting.py4j) {
+        if (!FlagSetting.py4j) {
             if (FlagSetting.allCombinationFlag) {
                 AIContainer.allAINameList = ResourceLoader.getInstance().loadFileNames("./data/ai", ".jar");
 

@@ -148,7 +148,8 @@ public class InputManager<Data> {
 				keys[i] = getKeyFromKeyboard(i == 0);
 				break;
 			case DEVICE_TYPE_AI:
-				keys[i] = getKeyFromAI(this.ais[i]);
+				if(this.ais != null)
+					keys[i] = getKeyFromAI(this.ais[i]);
 				break;
 			default:
 				break;
