@@ -7,7 +7,7 @@ from subprocess import DEVNULL, STDOUT
 def check_existing(p1_name, p2_name):
     files = os.listdir("log/point/")
     for f in files:
-        if "{}_{}".format(p1_name, p2_name) in f or "{}_{}".format(p2_name, p1_name) in f:
+        if "_{}_{}_".format(p1_name, p2_name) in f or "{}_{}".format(p2_name, p1_name) in f:
             return True
     return False
 
