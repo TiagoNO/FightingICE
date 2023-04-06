@@ -5,9 +5,11 @@ package setting;
  */
 public class FlagSetting {
 
+    public static boolean randomInitialState = false;
     /**
      * 繰り返し対戦を行うかどうかのフラグ．
      */
+
     public static boolean automationFlag = false;
 
     /**

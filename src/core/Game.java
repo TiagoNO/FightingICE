@@ -39,21 +39,13 @@ public class Game extends GameManager {
      * @param options 起動時に入力した全ての引数を格納した配列
      */
     public void setOptions(String[] options) {
-    //   LaunchSetting.aiNames[0] = "MctsAi";
-    //   LaunchSetting.deviceTypes[0] = InputManager.DEVICE_TYPE_AI;
-    //   LaunchSetting.aiNames[1] = "MctsAi";
-    //   LaunchSetting.deviceTypes[1] = InputManager.DEVICE_TYPE_AI;
-
-    //   FlagSetting.muteFlag = true;
-    //   FlagSetting.enableWindow = false;
-    //   FlagSetting.automationFlag = true;
-    //   FlagSetting.fastModeFlag = true;
 
 
         // Reads the configurations here
         for (int i = 0; i < options.length; ++i) {
             switch (options[i]) {
-                case "-a":
+                case "--random":
+                    FlagSetting.randomInitialState = true;
                 case "--all":
                     FlagSetting.allCombinationFlag = true;
                     LaunchSetting.deviceTypes = new char[]{1, 1};
@@ -189,8 +181,8 @@ public class Game extends GameManager {
               this.startGame(python);
          //     // 上記以外の場合, メニュー画面からゲームを開始する
           } else {
-              HomeMenu homeMenu = new HomeMenu();
-              this.startGame(homeMenu);
+            HomeMenu homeMenu = new HomeMenu();
+            this.startGame(homeMenu);
           }
 
     }
