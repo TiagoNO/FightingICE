@@ -11,6 +11,7 @@ import enumerate.Action;
 import enumerate.State;
 import image.Image;
 import loader.ResourceLoader;
+import manager.GameManager;
 import manager.SoundManager;
 import setting.FlagSetting;
 import setting.GameSetting;
@@ -19,7 +20,7 @@ import struct.AudioSource;
 import struct.CharacterData;
 import struct.HitArea;
 import struct.Key;
-
+import java.util.Random;
 /**
  * ゲームの進行に応じてキャラクターが持つ情報を更新する役割を持つクラス．
  */
@@ -239,8 +240,7 @@ public class Character {
      * @param character キャラクター情報を格納したCharacterクラスのインスタンス
      */
     public Character(Character character) {
-        initializeList();
-
+        initializeList();        
         this.playerNumber = character.isPlayerNumber();
         this.hp = character.getHp();
         this.energy = character.getEnergy();
@@ -365,8 +365,14 @@ public class Character {
      * 各ラウンドの開始時にキャラクター情報を初期化する．
      */
     public void roundInit() {
+
+        Random generator = new Random();
+
         if (FlagSetting.limitHpFlag) {
-            this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
+            if(FlagSetting.randomInitialState)
+                this.hp = Math.max(30, generator.nextInt(LaunchSetting.maxHp[this.playerNumber ? 0 : 1]));
+            else
+                this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
         } else {
             this.hp = 0;
         }
@@ -375,11 +381,15 @@ public class Character {
             this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
             this.energy = LaunchSetting.maxEnergy[this.playerNumber ? 0 : 1];
         } else {
-            this.energy = 0;
+            if(FlagSetting.randomInitialState)
+                this.energy = Math.max(0, generator.nextInt(LaunchSetting.maxEnergy[this.playerNumber ? 0 : 1]));
+            else
+                this.energy = 0;
         }
 
         this.speedX = 0;
         this.speedY = 0;
+
         this.state = State.STAND;
         this.action = Action.NEUTRAL;
         this.attack = null;
@@ -392,14 +402,23 @@ public class Character {
         if (this.playerNumber) {
             this.front = true;
             // 初期の立ち位置
-            this.x = 100 + this.graphicAdjustInitialX[0];
-            this.y = 335;
+            if(FlagSetting.randomInitialState){
+                this.x = Math.max(0, generator.nextInt(GameSetting.STAGE_WIDTH));
+                this.y = Math.max(0, generator.nextInt(GameSetting.STAGE_HEIGHT));
+            }
+            else{
+                this.x = 100 + this.graphicAdjustInitialX[0];
+                this.y = 335;
+            }
         } else {
-            this.front = false;
-            // 初期の立ち位置
-            this.x = 460 + this.graphicAdjustInitialX[1];
-            ;
-            this.y = 335;
+            if(FlagSetting.randomInitialState){
+                this.x = Math.max(0, generator.nextInt(GameSetting.STAGE_WIDTH));
+                this.y = Math.max(0, generator.nextInt(GameSetting.STAGE_HEIGHT));
+            }
+            else{
+                this.x = 460 + this.graphicAdjustInitialX[1];
+                this.y = 335;
+            }
         }
     }
 
