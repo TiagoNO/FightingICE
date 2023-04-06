@@ -1,7 +1,6 @@
 package gamescene;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.*;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.logging.Logger;
 
 import enumerate.GameSceneName;
 import fighting.Fighting;
-import grpc.ObserverAgent;
 import informationcontainer.RoundResult;
 import input.KeyData;
 import input.Keyboard;
@@ -25,12 +23,7 @@ import manager.SoundManager;
 import py4j.Py4JException;
 import setting.FlagSetting;
 import setting.GameSetting;
-import setting.LaunchSetting;
-import struct.AudioData;
-import struct.AudioSource;
-import struct.FrameData;
-import struct.GameData;
-import struct.ScreenData;
+import struct.*;
 import util.DebugActionData;
 import util.LogWriter;
 import util.ResourceDrawer;
@@ -111,6 +104,7 @@ public class Play extends GameScene {
 		this.nextGameScene = null;
 		this.dos = null;
 		//////////////////////////////////////
+
 	}
 
 	@Override
@@ -156,42 +150,25 @@ public class Play extends GameScene {
 		}
 
 		GameData gameData = new GameData(this.fighting.getCharacters());
-		if (FlagSetting.grpc) {
-			LaunchSetting.grpcServer.getObserver().initialize(gameData);
-		}
 
 		try {
 			InputManager.getInstance().createAIcontroller();
 			InputManager.getInstance().startAI(gameData);
-			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-	        Logger.getAnonymousLogger().log(Level.INFO, "AI controller is ready");
 		} catch (Py4JException e) {
 			Logger.getAnonymousLogger().log(Level.SEVERE, "Fail to Initialize AI");
-			Launcher launch = new Launcher(GameSceneName.PLAY);
+			Launcher lunch = new Launcher(GameSceneName.PLAY);
 			this.setTransitionFlag(true);
-<<<<<<< HEAD
 			this.setNextGameScene(lunch);
 		}
 		if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
 			this.sourceBackground = SoundManager.getInstance().createAudioSource();
 			SoundManager.getInstance().play2(sourceBackground, SoundManager.getInstance().getBackGroundMusicBuffer(), 350, 0, true);
-=======
-			this.setNextGameScene(launch);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 		}
-		SoundManager.getInstance().play2(sourceBackground, SoundManager.getInstance().getBackGroundMusicBuffer(), 350, 0, true);
+
 	}
 
 	@Override
 	public void update() {
-		
 		if (this.currentRound <= GameSetting.ROUND_MAX) {
 			// ラウンド開始時に初期化
 			if (this.roundStartFlag) {
@@ -210,33 +187,20 @@ public class Play extends GameScene {
 				} else if (this.endFrame % 30 == 0) {
 					this.nowFrame++;
 				}
-				
-//				if (FlagSetting.grpcMode) {
-//					try {
-//						GrpcServer.instance().enqueueGameData(frameData, audioData);
-//					} catch (InterruptedException e) {
-//						Logger.getAnonymousLogger().log(Level.SEVERE, "Fail to publish game data to gRPC channel");
-//					}
-//				}
 			}
 
 		} else {
-			processingGameEnd();
 			Logger.getAnonymousLogger().log(Level.INFO, "Game over");
-<<<<<<< HEAD
 			if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
 				// BGMを止める
 				SoundManager.getInstance().stop(sourceBackground);
 			}
-=======
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 
 			Result result = new Result(this.roundResults, this.timeInfo);
 			this.setTransitionFlag(true);
 			this.setNextGameScene(result);
 		}
 
-<<<<<<< HEAD
 		if(FlagSetting.enableWindow){
 			if (Keyboard.getKeyDown(GLFW_KEY_SPACE)) {
 				System.out.println("P1 x:" + this.frameData.getCharacter(true).getX() + "\n" + "P2 x:"
@@ -246,19 +210,6 @@ public class Play extends GameScene {
 						+ this.frameData.getCharacter(false).getLeft() + "\n" + "P2 Right:"
 						+ this.frameData.getCharacter(false).getRight() + "\n");
 			}
-=======
-		if (Keyboard.getKeyDown(GLFW_KEY_SPACE)) {
-			System.out.println("P1 x:" + this.frameData.getCharacter(true).getCenterX() + "\n" + "P2 x:"
-					+ this.frameData.getCharacter(false).getCenterX() + "\n" + "P1 Left:"
-					+ this.frameData.getCharacter(true).getLeft() + "\n" + "P1 Right:"
-					+ this.frameData.getCharacter(true).getRight() + "\n" + "P2 Left:"
-					+ this.frameData.getCharacter(false).getLeft() + "\n" + "P2 Right:"
-					+ this.frameData.getCharacter(false).getRight() + "\n");
-		}
-
-		if (Keyboard.getKeyDown(GLFW_KEY_ESCAPE)) {
-			SoundManager.getInstance().stop(sourceBackground);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 
 			if (Keyboard.getKeyDown(GLFW_KEY_ESCAPE)) {
 				if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
@@ -284,13 +235,9 @@ public class Play extends GameScene {
 		this.keyData = new KeyData();
 
 		InputManager.getInstance().clear();
-<<<<<<< HEAD
 		if (FlagSetting.enableWindow && !FlagSetting.muteFlag) {
 			SoundManager.getInstance().play2(sourceBackground,SoundManager.getInstance().getBackGroundMusicBuffer(),350,0,true);
 		}
-=======
-		SoundManager.getInstance().play2(sourceBackground,SoundManager.getInstance().getBackGroundMusicBuffer(),350,0,true);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 	}
 
 	/**
@@ -353,7 +300,6 @@ public class Play extends GameScene {
 			DebugActionData.getInstance().countPlayerAction(this.fighting.getCharacters());
 		}
 
-<<<<<<< HEAD
 		if (FlagSetting.enableWindow) {
 			this.screenData = new ScreenData();
 		}
@@ -369,23 +315,6 @@ public class Play extends GameScene {
 		// AIにFrameDataをセット
 		InputManager.getInstance().setFrameData(this.frameData, this.screenData, this.audioData);
 		
-=======
-		this.screenData = new ScreenData();
-		if (this.nowFrame == 0) {
-			this.audioData = new AudioData();
-		} else {
-            this.audioData = new AudioData(SoundManager.getInstance().getVirtualRenderer().sampleAudio());
-        }
-		// AIにFrameDataをセット
-		InputManager.getInstance().setFrameData(this.frameData, this.screenData, this.audioData);
-		
-		if (FlagSetting.grpc) {
-			ObserverAgent observer = LaunchSetting.grpcServer.getObserver();
-			observer.setInformation(this.frameData, this.audioData, this.screenData);
-			observer.onGameUpdate();
-		}
-
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 		// 体力が0orタイムオーバーならラウンド終了処理
 		if (isBeaten() || isTimeOver()) {
 			processingRoundEnd();
@@ -397,16 +326,11 @@ public class Play extends GameScene {
 	 * ラウンド終了時の処理を行う.
 	 */
 	private void processingRoundEnd() {
-<<<<<<< HEAD
 		if (FlagSetting.enableWindow && !FlagSetting.muteFlag){
 			ArrayList<AudioSource> audioSources = SoundManager.getInstance().getAudioSources();
 			for(AudioSource audioSource: audioSources)
 				SoundManager.getInstance().stop(audioSource);
 		}
-=======
-		for (AudioSource audioSource: SoundManager.getInstance().getAudioSources())
-			SoundManager.getInstance().stop(audioSource);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 
 		if (FlagSetting.slowmotion) {
 			if (this.endFrame > GameSetting.ROUND_EXTRAFRAME_NUMBER) {
@@ -424,6 +348,7 @@ public class Play extends GameScene {
 				if (FlagSetting.debugActionFlag) {
 					DebugActionData.getInstance().outputActionCount();
 				}
+
 			} else {
 				this.endFrame++;
 			}
@@ -445,11 +370,7 @@ public class Play extends GameScene {
 				DebugActionData.getInstance().outputActionCount();
 			}
 		}
-	}
-	
-	private void processingGameEnd() {
-		InputManager.getInstance().gameEnd();
-		SoundManager.getInstance().stop(sourceBackground);
+
 	}
 
 	/**

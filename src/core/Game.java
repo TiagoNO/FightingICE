@@ -2,17 +2,14 @@ package core;
 
 import java.awt.Font;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import enumerate.BackgroundType;
 import enumerate.GameSceneName;
-import gamescene.Grpc;
 import gamescene.HomeMenu;
 import gamescene.Launcher;
 import gamescene.Python;
-import grpc.GrpcServer;
 import image.LetterImage;
 import informationcontainer.AIContainer;
 import loader.ResourceLoader;
@@ -22,7 +19,6 @@ import manager.InputManager;
 import setting.FlagSetting;
 import setting.GameSetting;
 import setting.LaunchSetting;
-import setting.ResourceSetting;
 import util.DeleteFiles;
 
 /**
@@ -88,6 +84,12 @@ public class Game extends GameManager {
                 case "-del":
                     DeleteFiles.getInstance().deleteFiles();
                     break;
+                case "--py4j":
+                    FlagSetting.py4j = true;
+                    break;
+                case "--port":
+                    LaunchSetting.py4jPort = Integer.parseInt(options[++i]);
+                    break;
                 case "-r":
                     // -r 100 -> 1 game has 100 rounds
                     GameSetting.ROUND_MAX = Integer.parseInt(options[++i]);
@@ -133,40 +135,17 @@ public class Game extends GameManager {
                     FlagSetting.outputErrorAndLogFlag = true;
                     break;
                 case "--blind-player":
-	                int blindPlayer = Integer.parseInt(options[++i]);
-	                if (blindPlayer == 2) {
-	                	LaunchSetting.noVisual[0] = LaunchSetting.noVisual[1] = true;
-	                } else {
-	                    LaunchSetting.noVisual[blindPlayer] = true;
-	                }
+                    int blindPlayer = Integer.parseInt(options[++i]);
+                    if(blindPlayer == 0){
+                        LaunchSetting.noVisual[0] = true;
+                        LaunchSetting.noVisual[1] = true;
+                    }else{
+                        LaunchSetting.noVisual[blindPlayer - 1] = true;
+                    }
                     break;
-                case "--sound":
-                    LaunchSetting.soundName = options[++i];
-                	break;
-                case "--non-delay":
-                	int player = Integer.parseInt(options[++i]);
-                	if (player == 2) {
-                		LaunchSetting.nonDelay[0] = LaunchSetting.nonDelay[1] = true;
-                	} else {
-                		LaunchSetting.nonDelay[player] = true;
-                	}
-                	break;
-                case "--py4j":
-                    FlagSetting.py4j = true;
-                    break;
-                case "--port":
-                	int port = Integer.parseInt(options[++i]);
-                    LaunchSetting.py4jPort = LaunchSetting.grpcPort = port;
-                    break;
-                case "--grpc":
-                	FlagSetting.grpc = true;
-                	break;
-                case "--grpc-auto":
-                	FlagSetting.grpc = true;
-                	FlagSetting.grpcAuto = true;
-                	break;
                 default:
-                    Logger.getAnonymousLogger().log(Level.WARNING, "Arguments error: unknown format is exist. -> " + options[i] + " ?");
+                    Logger.getAnonymousLogger().log(Level.WARNING,
+                            "Arguments error: unknown format is exist. -> " + options[i] + " ?");
             }
         }
 
@@ -182,23 +161,8 @@ public class Game extends GameManager {
 
         createLogDirectories();
 
-<<<<<<< HEAD
         // -nまたは-aが指定されたときは, メニュー画面に行かず直接ゲームをLaunchする
         if (!FlagSetting.py4j) {
-=======
-        if (FlagSetting.grpc) {
-        	try {
-        		LaunchSetting.grpcServer = new GrpcServer();
-        		LaunchSetting.grpcServer.start(LaunchSetting.grpcPort);
-			} catch (IOException e) {
-                Logger.getAnonymousLogger().log(Level.INFO, "Fail to start gRPC server");
-                FlagSetting.grpc = false;
-			}
-        }
-        
-        if ((FlagSetting.automationFlag || FlagSetting.allCombinationFlag) && !FlagSetting.py4j && !FlagSetting.grpc) {
-            // -nまたは-aが指定されたときは, メニュー画面に行かず直接ゲームをLaunchする
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
             if (FlagSetting.allCombinationFlag) {
                 AIContainer.allAINameList = ResourceLoader.getInstance().loadFileNames("./data/ai", ".jar");
 
@@ -207,12 +171,8 @@ public class Game extends GameManager {
                     this.isExitFlag = true;
                 }
             }
-            if (!LaunchSetting.soundName.equals("Default")) {
-				ResourceSetting.SOUND_DIRECTORY = String.format("./data/sounds/%s/", LaunchSetting.soundName);
-            }
 
             Launcher launcher = new Launcher(GameSceneName.PLAY);
-<<<<<<< HEAD
             this.startGame(launcher);        
             // -Python側で起動するときは, Pythonシーンからゲームを開始する
          } else if (FlagSetting.py4j) {
@@ -221,18 +181,6 @@ public class Game extends GameManager {
               this.startGame(python);
          //     // 上記以外の場合, メニュー画面からゲームを開始する
           } else {
-=======
-            this.startGame(launcher);
-        } else if (FlagSetting.py4j) {
-        	// -Python側で起動するときは, Pythonシーンからゲームを開始する
-            Python python = new Python();
-            this.startGame(python);
-        } else if (FlagSetting.grpcAuto) {
-        	Grpc grpc = new Grpc();
-        	this.startGame(grpc);
-        } else {
-            // 上記以外の場合, メニュー画面からゲームを開始する
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
             HomeMenu homeMenu = new HomeMenu();
             this.startGame(homeMenu);
           }
@@ -252,7 +200,8 @@ public class Game extends GameManager {
                 return character;
             }
         }
-        Logger.getAnonymousLogger().log(Level.WARNING, characterName + " is does not exist. Please check the set character name.");
+        Logger.getAnonymousLogger().log(Level.WARNING,
+                characterName + " is does not exist. Please check the set character name.");
         return "ZEN"; // Default character
     }
 
@@ -263,7 +212,6 @@ public class Game extends GameManager {
         new File("log").mkdir();
         new File("log/replay").mkdir();
         new File("log/point").mkdir();
-        new File("log/grpc").mkdir();
     }
 
     @Override

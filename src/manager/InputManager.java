@@ -1,19 +1,6 @@
 package manager;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_I;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_J;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_K;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_T;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_U;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_X;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_Y;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_Z;
+import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -31,16 +18,12 @@ import loader.ResourceLoader;
 import py4j.Py4JException;
 import setting.FlagSetting;
 import setting.LaunchSetting;
-import struct.AudioData;
-import struct.FrameData;
-import struct.GameData;
-import struct.Key;
-import struct.ScreenData;
+import struct.*;
 
 /**
  * AIやキーボード等の入力関連のタスクを管理するマネージャークラス．
  */
-public class InputManager {
+public class InputManager<Data> {
 
 	/**
 	 * キー入力を格納するバッファ．
@@ -70,7 +53,7 @@ public class InputManager {
 	/**
 	 * Default number of devices.
 	 */
-	private final static int DEFAULT_DEVICE_NUMBER = 3;
+	private final static int DEFAULT_DEVICE_NUMBER = 2;
 
 	/**
 	 * デバイスタイプとしてキーボードを指定する場合の定数．
@@ -81,8 +64,6 @@ public class InputManager {
 	 * デバイスタイプとしてAIを指定する場合の定数．
 	 */
 	public final static char DEVICE_TYPE_AI = 1;
-	
-	public final static char DEVICE_TYPE_GRPC = 2;
 
 	/**
 	 * 入力デバイスを指定する配列．
@@ -167,13 +148,8 @@ public class InputManager {
 				keys[i] = getKeyFromKeyboard(i == 0);
 				break;
 			case DEVICE_TYPE_AI:
-<<<<<<< HEAD
 				if(this.ais != null)
 					keys[i] = getKeyFromAI(this.ais[i]);
-=======
-			case DEVICE_TYPE_GRPC:
-				keys[i] = getKeyFromAI(this.ais[i]);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 				break;
 			default:
 				break;
@@ -194,7 +170,6 @@ public class InputManager {
 	 */
 	private Key getKeyFromKeyboard(boolean playerNumber) {
 		Key key = new Key();
-<<<<<<< HEAD
 		if(FlagSetting.enableWindow){
 			if (playerNumber) {
 				key.A = keyboard.getKeyDown(GLFW_KEY_Z);
@@ -214,25 +189,6 @@ public class InputManager {
 				key.L = keyboard.getKeyDown(GLFW_KEY_J);
 			}	
 			ThreadController.getInstance().notifyWaiting(playerNumber);
-=======
-
-		if (playerNumber) {
-			key.A = Keyboard.getKeyDown(GLFW_KEY_Z);
-			key.B = Keyboard.getKeyDown(GLFW_KEY_X);
-			key.C = Keyboard.getKeyDown(GLFW_KEY_C);
-			key.U = Keyboard.getKeyDown(GLFW_KEY_UP);
-			key.D = Keyboard.getKeyDown(GLFW_KEY_DOWN);
-			key.R = Keyboard.getKeyDown(GLFW_KEY_RIGHT);
-			key.L = Keyboard.getKeyDown(GLFW_KEY_LEFT);
-		} else {
-			key.A = Keyboard.getKeyDown(GLFW_KEY_T);
-			key.B = Keyboard.getKeyDown(GLFW_KEY_Y);
-			key.C = Keyboard.getKeyDown(GLFW_KEY_U);
-			key.U = Keyboard.getKeyDown(GLFW_KEY_I);
-			key.D = Keyboard.getKeyDown(GLFW_KEY_K);
-			key.R = Keyboard.getKeyDown(GLFW_KEY_L);
-			key.L = Keyboard.getKeyDown(GLFW_KEY_J);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 		}
 		return key;
 	}
@@ -260,8 +216,6 @@ public class InputManager {
 				} else {
 					this.ais[i] = ResourceLoader.getInstance().loadAI(aiNames[i]);
 				}
-			} else if (this.deviceTypes[i] == DEVICE_TYPE_GRPC) {
-				this.ais[i] = new AIController(LaunchSetting.grpcServer.getPlayer(i == 0));
 			} else {
 				this.ais[i] = null;
 			}
@@ -279,12 +233,7 @@ public class InputManager {
 	public void startAI(GameData gameData) throws Py4JException{
 		for (int i = 0; i < this.deviceTypes.length; i++) {
 			if (this.ais[i] != null) {
-<<<<<<< HEAD
 				this.ais[i].initialize(gameData, i == 0);
-=======
-		        Logger.getAnonymousLogger().log(Level.INFO, String.format("Initialize AI controller for P%s", i == 0 ? "1" : "2"));
-				this.ais[i].initialize(ThreadController.getInstance().getAIsObject(i == 0), gameData, i == 0);
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 				this.ais[i].start();// start the thread
 			}
 		}
@@ -296,9 +245,13 @@ public class InputManager {
 	 */
 	public void closeAI() {
 		this.buffer = new KeyData();
-		
+
+		for (AIController ai : this.ais) {
+			if (ai != null)
+				ai.gameEnd();
+		}
 		this.deviceTypes = new char[DEFAULT_DEVICE_NUMBER];
-		this.ais = new AIController[DEFAULT_DEVICE_NUMBER];
+		this.ais = null;
 	}
 
 	/**
@@ -331,14 +284,13 @@ public class InputManager {
 	 * @see AudioData
 	 */
 	public void setFrameData(FrameData frameData, ScreenData screenData, AudioData audioData) {
-		for (AIController ai : this.ais) {
-			if (ai != null) {
+		for (int i = 0; i < this.ais.length; i++) {
+			if (this.ais[i] != null) {
 				if (!frameData.getEmptyFlag()) {
-					ai.setFrameData(new FrameData(frameData));
+					this.ais[i].setFrameData(new FrameData(frameData));
 				} else {
-					ai.setFrameData(new FrameData());
+					this.ais[i].setFrameData(new FrameData());
 				}
-<<<<<<< HEAD
 				if(FlagSetting.enableWindow){
 					this.ais[i].setScreenData(new ScreenData(screenData));
 					this.ais[i].setAudioData(new AudioData(audioData));	
@@ -352,31 +304,8 @@ public class InputManager {
 		for (int i = 0; i < this.ais.length; i++) {
 			if(this.deviceTypes[i] == DEVICE_TYPE_KEYBOARD)
 				ThreadController.getInstance().notifyEndProcess(i==0);
-=======
-				ai.setScreenData(new ScreenData(screenData));
-				ai.setAudioData(new AudioData(audioData));
-			}
-		}
-
-		ThreadController.getInstance().resetAllAIsObj();
-		if (FlagSetting.fastModeFlag) {
-			synchronized (this.endFrame) {
-				try {
-					this.endFrame.wait(20);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
->>>>>>> 3bb77d665e5c388bc18d88d48872ecbbc77fb629
 		}
 		while(!ThreadController.getInstance().isEndFrame());
-	}
-	
-	public void setInput(boolean playerNumber, Key input) {
-		AIController ai = this.ais[playerNumber ? 0 : 1];
-		if (ai != null) {
-			ai.setInput(input);
-		}
 	}
 
 	/**
@@ -390,14 +319,6 @@ public class InputManager {
 		for (AIController ai : this.ais) {
 			if (ai != null) {
 				ai.informRoundResult(roundResult);
-			}
-		}
-	}
-	
-	public void gameEnd() {
-		for (AIController ai : this.ais) {
-			if (ai != null) {
-				ai.gameEnd();
 			}
 		}
 	}

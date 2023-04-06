@@ -12,16 +12,14 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.jardesc
+#*.jar
 *.war
 *.ear
 *.zip
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see 
-http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
 # .
@@ -31,20 +29,19 @@ hs_err_pid*
 .project
 .settings
 bin
-data
-# lib
-log
+!.gitkeep
 log/point/*
+!.gitkeep
 log/replay/*
+!.gitkeep
 log/err/*
+!.gitkeep
 log/json/*
+!.gitkeep
 log/out/*
+!.gitkeep
+debugData
 *.ini
 #intellJ
 /.idea/*
 *.iml
-
-!lib/**
-!DareFightingICE/**
-**/__pycache__
-**/.DS_Store
