@@ -365,14 +365,8 @@ public class Character {
      * 各ラウンドの開始時にキャラクター情報を初期化する．
      */
     public void roundInit() {
-
-        Random generator = new Random();
-
         if (FlagSetting.limitHpFlag) {
-            if(FlagSetting.randomInitialState)
-                this.hp = Math.max(30, generator.nextInt(LaunchSetting.maxHp[this.playerNumber ? 0 : 1]));
-            else
-                this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
+            this.hp = LaunchSetting.initialHp[this.playerNumber ? 0 : 1];
         } else {
             this.hp = 0;
         }
@@ -381,10 +375,7 @@ public class Character {
             this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
             this.energy = LaunchSetting.maxEnergy[this.playerNumber ? 0 : 1];
         } else {
-            if(FlagSetting.randomInitialState)
-                this.energy = Math.max(0, generator.nextInt(LaunchSetting.maxEnergy[this.playerNumber ? 0 : 1]));
-            else
-                this.energy = 0;
+            this.energy = 0;
         }
 
         this.speedX = 0;
@@ -400,20 +391,20 @@ public class Character {
         this.lastHitFrame = 0;
 
         if (this.playerNumber) {
-            this.front = true;
-            // 初期の立ち位置
-            if(FlagSetting.randomInitialState){
-                this.x = Math.max(0, generator.nextInt(GameSetting.STAGE_WIDTH));
-                this.y = Math.max(0, generator.nextInt(GameSetting.STAGE_HEIGHT));
+            if(FlagSetting.flipSide){
+                this.x = 460 + this.graphicAdjustInitialX[0];
+                this.y = 335;
             }
             else{
+                this.front = true;
                 this.x = 100 + this.graphicAdjustInitialX[0];
                 this.y = 335;
             }
         } else {
-            if(FlagSetting.randomInitialState){
-                this.x = Math.max(0, generator.nextInt(GameSetting.STAGE_WIDTH));
-                this.y = Math.max(0, generator.nextInt(GameSetting.STAGE_HEIGHT));
+            if(FlagSetting.flipSide){
+                this.front = true;
+                this.x = 100 + this.graphicAdjustInitialX[1];
+                this.y = 335;
             }
             else{
                 this.x = 460 + this.graphicAdjustInitialX[1];
