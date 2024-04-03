@@ -11,6 +11,7 @@ import enumerate.Action;
 import enumerate.State;
 import image.Image;
 import loader.ResourceLoader;
+import manager.GameManager;
 import manager.SoundManager;
 import setting.FlagSetting;
 import setting.GameSetting;
@@ -19,7 +20,7 @@ import struct.AudioSource;
 import struct.CharacterData;
 import struct.HitArea;
 import struct.Key;
-
+import java.util.Random;
 /**
  * ゲームの進行に応じてキャラクターが持つ情報を更新する役割を持つクラス．
  */
@@ -239,8 +240,7 @@ public class Character {
      * @param character キャラクター情報を格納したCharacterクラスのインスタンス
      */
     public Character(Character character) {
-        initializeList();
-
+        initializeList();        
         this.playerNumber = character.isPlayerNumber();
         this.hp = character.getHp();
         this.energy = character.getEnergy();
@@ -366,7 +366,7 @@ public class Character {
      */
     public void roundInit() {
         if (FlagSetting.limitHpFlag) {
-            this.hp = LaunchSetting.maxHp[this.playerNumber ? 0 : 1];
+            this.hp = LaunchSetting.initialHp[this.playerNumber ? 0 : 1];
         } else {
             this.hp = 0;
         }
@@ -380,6 +380,7 @@ public class Character {
 
         this.speedX = 0;
         this.speedY = 0;
+
         this.state = State.STAND;
         this.action = Action.NEUTRAL;
         this.attack = null;
@@ -390,16 +391,25 @@ public class Character {
         this.lastHitFrame = 0;
 
         if (this.playerNumber) {
-            this.front = true;
-            // 初期の立ち位置
-            this.x = 100 + this.graphicAdjustInitialX[0];
-            this.y = 335;
+            if(FlagSetting.flipSide){
+                this.x = 460 + this.graphicAdjustInitialX[0];
+                this.y = 335;
+            }
+            else{
+                this.front = true;
+                this.x = 100 + this.graphicAdjustInitialX[0];
+                this.y = 335;
+            }
         } else {
-            this.front = false;
-            // 初期の立ち位置
-            this.x = 460 + this.graphicAdjustInitialX[1];
-            ;
-            this.y = 335;
+            if(FlagSetting.flipSide){
+                this.front = true;
+                this.x = 100 + this.graphicAdjustInitialX[1];
+                this.y = 335;
+            }
+            else{
+                this.x = 460 + this.graphicAdjustInitialX[1];
+                this.y = 335;
+            }
         }
     }
 

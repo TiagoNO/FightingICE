@@ -14,6 +14,11 @@ public final class LaunchSetting {
 	public static int[] maxHp = { 400, 400 };
 
 	/**
+	 * P1,P2の最大HPを格納する配列．
+	*/
+	public static int[] initialHp = { 400, 400 };
+
+	/**
 	 * P1,P2の最大エネルギーを格納する配列．
 	 */
 	public static int[] maxEnergy = { 300, 300 };

@@ -151,6 +151,7 @@ public class Play extends GameScene {
 
 		GameData gameData = new GameData(this.fighting.getCharacters());
 
+		System.out.println("Creating AI Controller");
 		try {
 			InputManager.getInstance().createAIcontroller();
 			InputManager.getInstance().startAI(gameData);
@@ -370,7 +371,7 @@ public class Play extends GameScene {
 				DebugActionData.getInstance().outputActionCount();
 			}
 		}
-
+		FlagSetting.flipSide = !FlagSetting.flipSide;
 	}
 
 	/**
