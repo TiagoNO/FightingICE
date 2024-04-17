@@ -229,8 +229,7 @@ public class Character {
         this.lastHitFrame = 0;
         this.hitCount = 0;
         this.isSimulateProcess = false;
-        if(FlagSetting.enableWindow && !FlagSetting.muteFlag)
-            this.initializeSound();
+        this.initializeSound();
 
     }
 
@@ -347,6 +346,9 @@ public class Character {
     }
 
     public void initializeSound() {
+        if(FlagSetting.enableWindow && !FlagSetting.muteFlag)
+            return;
+
         if (!this.isSimulateProcess) {
             this.sourceDefault = SoundManager.getInstance().createAudioSource();
             this.sourceLanding = SoundManager.getInstance().createAudioSource();
@@ -429,10 +431,10 @@ public class Character {
 
                 for(int a = 0 ; a < this.projectileAttack.length ; a++) {
                     if(this.projectileAttack[a] == null && this.sourceProjectTiles[a] !=null) {
-                        SoundManager.getInstance().stop(this.sourceProjectTiles[a]);
+                        if(FlagSetting.enableWindow && !FlagSetting.muteFlag)
+                            SoundManager.getInstance().stop(this.sourceProjectTiles[a]);
                     }
                 }
-
                 destroyAttackInstance();
             }
 
@@ -552,11 +554,9 @@ public class Character {
                     if(this.projectileAttack[a] == null) {
                         this.projectileAttack[a] =  new Attack (this.attack);
                         this.projectileAttack2[a] = this.attack;
-
                         break;
                     }
                 }
-
             }
         }
 
@@ -570,67 +570,70 @@ public class Character {
             this.processedCommands.removeFirst();
 
         // Different Conditions for the sound effects
-        if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
-            if (this.energy > this.preEnergy + 50) {
-                this.preEnergy = this.energy;
+        if (this.energy > this.preEnergy + 50) {
+            this.preEnergy = this.energy;
+
+            if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
                 if (this.playerNumber) {
                     SoundManager.getInstance().play2(sourceEnergyChange, SoundManager.getInstance().getSoundBuffers().get("EnergyCharge.wav"), 0, 0, false);
                 } else {
                     SoundManager.getInstance().play2(sourceEnergyChange, SoundManager.getInstance().getSoundBuffers().get("EnergyCharge.wav"), GameSetting.STAGE_WIDTH, 0, false);
                 }
-
             }
-            if (this.getHitAreaLeft() < 0 || this.getHitAreaRight() > GameSetting.STAGE_WIDTH) {
-                if (!SoundManager.getInstance().isPlaying(sourceBorderAlert)) {
-                    if (this.getHitAreaLeft() < 0) {
-                        SoundManager.getInstance().play2(sourceBorderAlert, SoundManager.getInstance().getSoundBuffers().get("BorderAlert.wav"), 0, 0, false);
-                    } else {
-                        SoundManager.getInstance().play2(sourceBorderAlert, SoundManager.getInstance().getSoundBuffers().get("BorderAlert.wav"), GameSetting.STAGE_WIDTH, 0, false);
-                    }
-
+        }
+        if (this.getHitAreaLeft() < 0 || this.getHitAreaRight() > GameSetting.STAGE_WIDTH) {
+            if (!SoundManager.getInstance().isPlaying(sourceBorderAlert)) {
+                if (this.getHitAreaLeft() < 0) {
+                    SoundManager.getInstance().play2(sourceBorderAlert, SoundManager.getInstance().getSoundBuffers().get("BorderAlert.wav"), 0, 0, false);
+                } else {
+                    SoundManager.getInstance().play2(sourceBorderAlert, SoundManager.getInstance().getSoundBuffers().get("BorderAlert.wav"), GameSetting.STAGE_WIDTH, 0, false);
                 }
-            }
-            if(FlagSetting.limitHpFlag) {
-            	if(this.hp < 50) {
-            		if(!SoundManager.getInstance().isPlaying(sourceHeartBeat)) {
-            			if(this.playerNumber)SoundManager.getInstance().play2(sourceHeartBeat,SoundManager.getInstance().getSoundBuffers().get("Heartbeat.wav"),0,0,false);
-            			else SoundManager.getInstance().play2(sourceHeartBeat,SoundManager.getInstance().getSoundBuffers().get("Heartbeat.wav"),GameSetting.STAGE_WIDTH,0,false);
-            		}
-            	}  
-            }
 
-            // This is to make sure crouch sound does not loop while the character is crouching.
-            if (!this.state.toString().equals("CROUCH")) {
-                TempName = " ";
             }
-            // This is to make sure Character footsteps sound does not play when character is in air.
-            if (this.speedX == 0 || this.state.toString().equals("AIR")) {
-                TempName2 = " ";
+        }
+        if(FlagSetting.limitHpFlag && FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
+            if(this.hp < 50) {
+                if(!SoundManager.getInstance().isPlaying(sourceHeartBeat)) {
+                    if(this.playerNumber)SoundManager.getInstance().play2(sourceHeartBeat,SoundManager.getInstance().getSoundBuffers().get("Heartbeat.wav"),0,0,false);
+                    else SoundManager.getInstance().play2(sourceHeartBeat,SoundManager.getInstance().getSoundBuffers().get("Heartbeat.wav"),GameSetting.STAGE_WIDTH,0,false);
+                }
+            }  
+        }
+
+        // This is to make sure crouch sound does not loop while the character is crouching.
+        if (!this.state.toString().equals("CROUCH")) {
+            TempName = " ";
+        }
+        // This is to make sure Character footsteps sound does not play when character is in air.
+        if (this.speedX == 0 || this.state.toString().equals("AIR")) {
+            TempName2 = " ";
+            if(FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                 SoundManager.getInstance().stop(sourceWalking);
-            } else {
+        } else {
+            if(FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                 SoundManager.getInstance().setSourcePos(sourceWalking, this.x, this.y);
-            }
+        }
 
 
-            for(int a  = 0 ; a < this.projectileAttack.length ; a++) {
-                if(this.projectileAttack[a] != null) {
-                    if(this.isProjectileLive[a]) {
-                        if (this.projectileAttack[a].updateProjectileAttack() && !this.ProjectileHit[a]) {
+        for(int a  = 0 ; a < this.projectileAttack.length ; a++) {
+            if(this.projectileAttack[a] != null) {
+                if(this.isProjectileLive[a]) {
+                    if (this.projectileAttack[a].updateProjectileAttack() && !this.ProjectileHit[a]) {
 
-                            this.sX[a] = this.sX[a] + (this.projectileAttack[a].getSpeedX());
-                            this.sY[a] = this.sX[a] + (this.projectileAttack[a].getSpeedY());
+                        this.sX[a] = this.sX[a] + (this.projectileAttack[a].getSpeedX());
+                        this.sY[a] = this.sX[a] + (this.projectileAttack[a].getSpeedY());
+                        if(FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                             SoundManager.getInstance().setSourcePos(sourceProjectTiles[a], this.sX[a], this.sY[a]);
-                        } else {
+                    } else {
+                        if(FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                             SoundManager.getInstance().stop(sourceProjectTiles[a]);
-                            this.isProjectileLive[a] = false;
-                            this.projectileAttack[a] = null;
-                            this.ProjectileHit[a] = false;
-                        }
-
+                        this.isProjectileLive[a] = false;
+                        this.projectileAttack[a] = null;
+                        this.ProjectileHit[a] = false;
                     }
+
                 }
             }
-
         }
     }
 
@@ -668,9 +671,8 @@ public class Character {
             setRemainingFrame(attack.getGiveGuardRecov());
             opponent.setEnergy(opponent.getEnergy() + attack.getGuardAddEnergy());
 
-            if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
+            if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                 SoundManager.getInstance().play2(sourceLanding, SoundManager.getInstance().getSoundBuffers().get("WeakGuard.wav"), this.x, this.y, false);
-            }
         } else {
             // 投げ技のときの処理
             if (attack.getAttackType() == 4) {
@@ -699,10 +701,8 @@ public class Character {
                     runAction(Action.CHANGE_DOWN, false);
                     setRemainingFrame(this.motionList.get(this.action.ordinal()).getFrameNumber());
 
-                    if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
+                    if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                         SoundManager.getInstance().play2(sourceLanding, SoundManager.getInstance().getSoundBuffers().get("HitB.wav"), this.x, this.y, false);
-
-                    }
 
                 } else {
                     switch (this.state) {
@@ -722,9 +722,8 @@ public class Character {
                             break;
                     }
 
-                    if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess) {
+                    if (FlagSetting.enableWindow && !FlagSetting.muteFlag && !this.isSimulateProcess)
                         SoundManager.getInstance().play2(sourceLanding, SoundManager.getInstance().getSoundBuffers().get("HitA.wav"), this.x, this.y, false);
-                    }
                 }
             }
         }
@@ -1453,7 +1452,7 @@ public class Character {
 
     public void close(){
         // close all sound sources
-        if(FlagSetting.enableWindow && FlagSetting.enableWindow && !FlagSetting.muteFlag){
+        if(FlagSetting.enableWindow && !FlagSetting.muteFlag){
             sourceDefault.close();
             sourceLanding.close();
             sourceWalking.close();
